@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "deep learning/LLM 项目学习笔记：Qwen1.5-1.8B-Chat 的 4bit + LoRA 监督微调（SFT）.md",
-                "mode": "source",
+                "file": "deep learning/NLP 小任务学习文档（情感分析、翻译、生成文本）.md",
+                "mode": "preview",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "LLM 项目学习笔记：Qwen1.5-1.8B-Chat 的 4bit + LoRA 监督微调（SFT）"
+              "title": "NLP 小任务学习文档（情感分析、翻译、生成文本）"
             }
           }
         ]
@@ -208,8 +208,9 @@
   },
   "active": "c765a8a5aa603511",
   "lastOpenFiles": [
-    "网络安全入门/爬虫.md",
     "deep learning/LLM 项目学习笔记：Qwen1.5-1.8B-Chat 的 4bit + LoRA 监督微调（SFT）.md",
+    "deep learning/NLP 小任务学习文档（情感分析、翻译、生成文本）.md",
+    "网络安全入门/爬虫.md",
     "deep learning/DLV-CD变化检测项目.md",
     "deep learning/扩散模型vs对抗网络.md",
     "死农专衣物交易平台/死农专衣物交易平台学习总结（Vue 3 + Express + MySQL）.md",
