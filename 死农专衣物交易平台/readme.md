@@ -3,7 +3,7 @@
 
 > 目标：用“前端页面 → API → 数据库 → 部署”的链路，复盘本项目的工程结构、关键实现与踩坑点，方便答辩/复现/后续迭代。  
 
-## 目录
+## 1 目录
 
 - [1. 概述](#1-概述)
 
@@ -25,11 +25,7 @@
 
 - [10. 导师问答速记（架构 / 痛点 / 安全）](#10-导师问答速记架构--痛点--安全)
 
-  
-
-## 1. 概述
-
-  
+## 2 概述
 
 - 业务范围（学习版）：登录/注册、商品列表/分类/详情、收藏、购物车、租赁订单、评论等。
 
@@ -37,45 +33,25 @@
 
 - 部署方式：开发期可“仅 DB 容器化 + 前后端热更新”，验收/生产期使用 `docker-compose.yml` 拉起 `db / backend / frontend`，前端由 Nginx 承载并反代后端。
 
-  
-
-## 2. 技术栈
-
-  
+## 3 技术栈
 
 | 层 | 技术/组件 | 作用 |
-
 | --- | --- | --- |
-
 | 前端 | Vue 3、Vite | 组件化开发与构建/热更新 |
-
 | 状态/路由 | Pinia、Vue Router | 登录态/用户信息/购物车等全局状态；路由与守卫 |
-
 | UI | Element Plus、Sass | 组件库与样式组织 |
-
 | 请求 | Axios（`frontend/src/utils/http.js`） | 统一 baseURL、token 注入、错误拦截 |
-
 | 后端 | Node.js（ESM）、Express | REST API、路由与中间件 |
-
 | 数据访问 | mysql2/promise | 连接池 + 参数化 SQL |
-
 | 数据库 | MySQL 8（utf8mb4） | 表结构、约束、种子数据 |
-
 | 部署 | Docker、Docker Compose、Nginx | 容器化、服务编排、静态站点 + 反向代理 |
 
-  
+## 4 总体架构与数据流
 
-## 3. 总体架构与数据流
-
-  
-
-### 3.1 请求链路（开发/生产一致的关键）
-
-  
+### 4.1 请求链路（开发/生产一致的关键）
 
 核心约定：**前端统一请求 `/api/...`，代理层负责转发与（必要时）去掉 `/api` 前缀，后端路由尽量保持不带 `/api`。**
 
-  
 
 ```text
 
@@ -99,11 +75,7 @@ MySQL
 
 ```
 
-  
-
-### 3.2 登录态与鉴权链路
-
-  
+### 4.2 登录态与鉴权链路
 
 - 登录/注册：后端生成 `token` 并写入 `users.token`；前端持久化到 localStorage（本项目 key 为 `token_sicau`）。
 
@@ -111,11 +83,7 @@ MySQL
 
 - 后端鉴权：从 `Authorization` 解析 token，查库得到 userId（`getUserIdFromToken`），再执行业务 SQL。
 
-  
-
-## 4. 代码结构与模块分工
-
-  
+## 5 代码结构与模块分工
 
 - `frontend/`
 
@@ -135,19 +103,11 @@ MySQL
 
   - 建库、建用户、建表、初始化分类/商品等种子数据
 
-  
-
 我学到的拆分原则：前端保持 **API（请求）/ Store（状态）/ View（页面）** 三层；后端上线更建议拆成 `routes/ + services/ + db/`（避免 `server.js` 过长、难测、难复用）。
 
-  
-
-## 5. 数据库设计要点
-
-  
+## 6 数据库设计要点
 
 主要表（统一 `utf8mb4`）：
-
-  
 
 - `users`：用户名、密码哈希、token、头像
 
@@ -161,11 +121,7 @@ MySQL
 
 - `comments`：评论（可选星级）
 
-  
-
 我学到的点：
-
-  
 
 - 字符集统一用 `utf8mb4`，避免中文/emoji 存储异常。
 
@@ -173,15 +129,9 @@ MySQL
 
 - 当前 `goods.id` 是 `INT`，而部分业务表里的 `product_id` 是 `VARCHAR`：学习阶段先记录风险，后续应统一类型，降低 JOIN/对齐成本。
 
-  
+## 7 后端设计（鉴权与接口）
 
-## 6. 后端设计（鉴权与接口）
-
-  
-
-### 6.1 鉴权方式
-
-  
+### 7.1 鉴权方式
 
 - token 生成：登录/注册成功后生成并写入 `users.token`。
 
@@ -189,101 +139,54 @@ MySQL
 
 - token 校验：后端解析 token 后查库得到 userId，再执行后续业务逻辑。
 
-  
-
 安全实现要点：主要 SQL 使用 `pool.execute(sql, params)` 参数化，避免 SQL 注入（代码中也保留了“危险拼接”的对照示例）。
 
-  
-
-### 6.2 接口清单（按业务域）
-
-  
+### 7.2 接口清单（按业务域）
 
 （以 `backend/server.js` 为准）
 
-  
-
 | 业务域 | 方法 | 路径 | 说明 |
-
 | --- | --- | --- | --- |
-
 | 登录 | POST | `/login` | 登录/注册合并入口，返回 token + userInfo |
-
 | 用户 | GET | `/profile` | 获取当前用户资料 |
-
 | 收藏 | GET | `/favorites` | 获取收藏列表 |
-
 | 收藏 | POST | `/favorites` | 添加收藏 |
-
 | 收藏 | DELETE | `/favorites/:id` | 取消收藏 |
-
 | 购物车 | GET | `/cart` | 获取购物车 |
-
 | 购物车 | POST | `/cart` | 添加商品或累计数量 |
-
 | 购物车 | PUT | `/cart/select-all` | 全选/全不选 |
-
 | 购物车 | PUT | `/cart/:productId` | 修改数量/选中状态 |
-
 | 购物车 | DELETE | `/cart/batch` | 批量删除 |
-
 | 购物车 | DELETE | `/cart/:productId` | 删除单项 |
-
 | 租赁 | GET | `/rentals` | 获取租赁订单 |
-
 | 租赁 | POST | `/rentals` | 创建租赁订单 |
-
 | 租赁 | PUT | `/rentals/:orderId/cancel` | 取消订单 |
-
 | 租赁 | DELETE | `/rentals/:orderId` | 删除订单 |
-
 | 评论 | GET | `/products/:productId/comments` | 获取商品评论 |
-
 | 评论 | POST | `/products/:productId/comments` | 发表评论 |
-
 | 评论 | DELETE | `/comments/:commentId` | 删除评论 |
 
-  
+## 8 前端设计（路由、状态、请求）
 
-## 7. 前端设计（路由、状态、请求）
-
-  
-
-### 7.1 路由守卫（登录态控制）
-
-  
+### 8.1 路由守卫（登录态控制）
 
 - `frontend/src/router/index.js`：对 `meta.requiresAuth` 的路由做拦截，没有 token 则跳回登录页，并带上 `redirect`。
 
-  
-
-### 7.2 状态管理（Pinia）
-
-  
+### 8.2 状态管理（Pinia）
 
 - token 与用户信息落在 store，并持久化到 localStorage。
 
 - key 统一（如 `token_sicau`）非常重要：守卫、拦截器、store 三者必须一致，否则会出现“登录后刷新丢状态”的问题。
 
-  
-
-### 7.3 Axios 统一封装（请求拦截与错误处理）
-
-  
+### 8.3 Axios 统一封装（请求拦截与错误处理）
 
 - `frontend/src/utils/http.js`：优先从 localStorage 读 `token_sicau`，统一注入 `Authorization`。
 
 - 响应拦截器预留 401 统一处理入口（清 token、跳转登录、提示等）。
 
-  
+## 9 容器化与部署（Docker / Compose / Nginx）
 
-## 8. 容器化与部署（Docker / Compose / Nginx）
-
-  
-
-### 8.1 Docker 的作用（为什么要容器化）
-
-  
+### 9.1 Docker 的作用（为什么要容器化）
 
 - 环境一致性：Node/MySQL/Nginx 版本与运行方式固定到镜像。
 
@@ -291,15 +194,9 @@ MySQL
 
 - 交付友好：把“怎么跑起来”固化成 `docker-compose.yml`，便于验收复现。
 
-  
-
-### 8.2 两种启动方式（开发 vs 验收/部署）
-
-  
+### 9.2 两种启动方式（开发 vs 验收/部署）
 
 1）本地热更新（学习/开发更顺手）：只把 DB 放进容器，前后端在宿主机运行。
-
-  
 
 ```bash
 
@@ -323,11 +220,7 @@ npm run dev -- --port 5175
 
 ```
 
-  
-
 2）全容器启动（更接近验收/部署）：`db + backend + frontend` 全部交给 Compose。
-
-  
 
 ```bash
 
@@ -337,11 +230,7 @@ docker compose ps
 
 ```
 
-  
-
 默认验收入口（参考 `.env.sample`）：
-
-  
 
 - 前端：`http://localhost:5173`
 
@@ -349,11 +238,7 @@ docker compose ps
 
 - MySQL：`127.0.0.1:13306`
 
-  
-
-### 8.3 Compose 里的关键机制
-
-  
+### 9.3 Compose 里的关键机制
 
 - 数据库初始化：`db/init.sql` 挂载到 `/docker-entrypoint-initdb.d/`，首次启动自动建库建表与种子数据。
 
@@ -363,11 +248,7 @@ docker compose ps
 
 - 容器网络：容器内服务通过 service name 访问（如 `DB_HOST=db`）。
 
-  
-
-### 8.4 Nginx 的作用（生产发布与同源访问）
-
-  
+### 9.4 Nginx 的作用（生产发布与同源访问）
 
 - 静态资源服务：承载 `dist/`。
 
@@ -375,11 +256,7 @@ docker compose ps
 
 - API 反代：把 `/api/` 转发到 `backend:5200`，实现前后端同源部署，降低跨域与部署复杂度。
 
-  
-
-## 9. 关键痛点与改进建议
-
-  
+## 10 关键痛点与改进建议
 
 - 数据库未就绪导致后端启动失败：Compose healthcheck + depends_on；代码侧可补连接重试与降级提示。
 
@@ -393,13 +270,9 @@ docker compose ps
 
 - 代码组织：后端建议拆分路由与服务层；前端 `src/apis/` 与 `src/stores/` 内容保持“职责单一”，避免文件混入不同层代码。
 
-  
+## 11 导师问答速记（架构 / 痛点 / 安全）
 
-## 10. 导师问答速记（架构 / 痛点 / 安全）
-
-  
-
-### 10.1 架构设计
+### 11.1 架构设计
 
   
 
@@ -411,23 +284,17 @@ docker compose ps
 
   - A：静态资源分发更高效；支持 SPA 回退；可把 `/api` 反代到后端，做到同源部署、跨域成本更低。
 
+
+### 11.2 关键痛点与应对（答辩用短句）
+
   
-
-### 10.2 关键痛点与应对（答辩用短句）
-
-  
-
 - “后端连不上库”：healthcheck + depends_on +（可选）连接重试。
 
 - “开发/生产接口路径不一致”：统一 `/api` 约定，代理层处理前缀。
 
 - “登录态不稳定”：token key 常量化；拦截器优先读 localStorage。
 
-  
-
-### 10.3 安全防范（当前实现 + 可提升点）
-
-  
+### 11.3 安全防范（当前实现 + 可提升点）
 
 - 密码：使用 `bcrypt`/`bcryptjs` 哈希存储与比对，避免明文落库；避免日志打印敏感信息。
 

@@ -174,9 +174,19 @@
               "icon": "git-pull-request",
               "title": "Source Control"
             }
+          },
+          {
+            "id": "fb48d50250b7bc06",
+            "type": "leaf",
+            "state": {
+              "type": "advanced-tables-toolbar",
+              "state": {},
+              "icon": "spreadsheet",
+              "title": "Advanced Tables"
+            }
           }
         ],
-        "currentTab": 5
+        "currentTab": 6
       }
     ],
     "direction": "horizontal",
@@ -192,19 +202,26 @@
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
       "bases:新建数据库": false,
-      "obsidian-git:Open Git source control": false
+      "obsidian-git:Open Git source control": false,
+      "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
   "active": "c177eb656eb329a6",
   "lastOpenFiles": [
-    "Pasted image 20260215175815.png",
-    "死农专衣物交易平台/readme.md.md",
+    "_attachments/Pasted image 20260215192553.png",
+    "_attachments/Pasted image 20260215191235.png",
+    "_attachments/Pasted image 20260215191422.png",
+    "_attachments/Pasted image 20260215190410.png",
     "deep learning/扩散模型vs对抗网络.md",
-    "死农专衣物交易平台",
-    "obsidian入门/未命名",
-    "obsidian入门/Git 插件.md",
     "obsidian入门/基本命令.md",
     "obsidian入门/markdown语法.md",
+    "obsidian入门/Git 插件.md",
+    "死农专衣物交易平台/readme.md",
+    "_attachments",
+    "Pasted image 20260215181352.png",
+    "Pasted image 20260215175815.png",
+    "死农专衣物交易平台",
+    "obsidian入门/未命名",
     "obsidian入门",
     "deep learning",
     "欢迎.md",
