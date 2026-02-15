@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "deep learning/LLM微调.md",
+                "file": "网络安全入门/爬虫.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "LLM微调"
+              "title": "爬虫"
             }
           }
         ]
@@ -208,8 +208,12 @@
   },
   "active": "c177eb656eb329a6",
   "lastOpenFiles": [
-    "deep learning/扩散模型vs对抗网络.md",
+    "死农专衣物交易平台/死农专衣物交易平台学习总结（Vue 3 + Express + MySQL）.md",
+    "网络安全入门/爬虫.md",
+    "网络安全入门",
     "deep learning/LLM微调.md",
+    "deep learning/扩散模型vs对抗网络.md",
+    "deep learning/DLV-CD变化检测项目.md",
     "_attachments/Pasted image 20260215192553.png",
     "_attachments/Pasted image 20260215191235.png",
     "_attachments/Pasted image 20260215191422.png",
@@ -217,7 +221,6 @@
     "obsidian入门/基本命令.md",
     "obsidian入门/markdown语法.md",
     "obsidian入门/Git 插件.md",
-    "死农专衣物交易平台/readme.md",
     "_attachments",
     "Pasted image 20260215181352.png",
     "Pasted image 20260215175815.png",
