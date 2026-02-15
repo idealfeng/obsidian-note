@@ -1,58 +1,151 @@
-# 死农专衣物交易平台（Vue3 + Express + MySQL）学习总结
+# 死农专衣物交易平台学习总结（Vue 3 + Express + MySQL）
+
+
+> 目标：用“前端页面 → API → 数据库 → 部署”的链路，复盘本项目的工程结构、关键实现与踩坑点，方便答辩/复现/后续迭代。  
+
+## 目录
+
+- [1. 概述](#1-概述)
+
+- [2. 技术栈](#2-技术栈)
+
+- [3. 总体架构与数据流](#3-总体架构与数据流)
+
+- [4. 代码结构与模块分工](#4-代码结构与模块分工)
+
+- [5. 数据库设计要点](#5-数据库设计要点)
+
+- [6. 后端设计（鉴权与接口）](#6-后端设计鉴权与接口)
+
+- [7. 前端设计（路由、状态、请求）](#7-前端设计路由状态请求)
+
+- [8. 容器化与部署（Docker / Compose / Nginx）](#8-容器化与部署docker--compose--nginx)
+
+- [9. 关键痛点与改进建议](#9-关键痛点与改进建议)
+
+- [10. 导师问答速记（架构 / 痛点 / 安全）](#10-导师问答速记架构--痛点--安全)
 
   
 
-> 面向：复盘本项目从“前端页面 → API → 数据库 → 部署”的完整链路，沉淀可复用的工程化做法与踩坑经验。
+## 1. 概述
 
   
 
-## 1. 项目做了什么
+- 业务范围（学习版）：登录/注册、商品列表/分类/详情、收藏、购物车、租赁订单、评论等。
+
+- 三层结构：前端（Vue）负责交互与状态；后端（Express）负责业务与数据访问；数据库（MySQL）负责持久化。
+
+- 部署方式：开发期可“仅 DB 容器化 + 前后端热更新”，验收/生产期使用 `docker-compose.yml` 拉起 `db / backend / frontend`，前端由 Nginx 承载并反代后端。
 
   
 
-- 前端：Vue 3 + Vite + Pinia + Vue Router + Element Plus，包含登录、首页、分类、详情、收藏、购物车、订单/租赁等页面。
-
-- 后端：Node.js（ESM）+ Express + mysql2/promise，提供登录/注册、用户资料、收藏、购物车、租赁订单、评论等接口。
-
-- 数据库：MySQL 8（utf8mb4），通过 `db/init.sql` 初始化库、用户、表结构与部分种子数据。
-
-- 部署：`docker-compose.yml` 一键拉起 `db / backend / frontend`；生产前端由 Nginx 承载并反代后端。
+## 2. 技术栈
 
   
 
-## 2. 目录与模块分工（我学到的拆分方式）
+| 层 | 技术/组件 | 作用 |
+
+| --- | --- | --- |
+
+| 前端 | Vue 3、Vite | 组件化开发与构建/热更新 |
+
+| 状态/路由 | Pinia、Vue Router | 登录态/用户信息/购物车等全局状态；路由与守卫 |
+
+| UI | Element Plus、Sass | 组件库与样式组织 |
+
+| 请求 | Axios（`frontend/src/utils/http.js`） | 统一 baseURL、token 注入、错误拦截 |
+
+| 后端 | Node.js（ESM）、Express | REST API、路由与中间件 |
+
+| 数据访问 | mysql2/promise | 连接池 + 参数化 SQL |
+
+| 数据库 | MySQL 8（utf8mb4） | 表结构、约束、种子数据 |
+
+| 部署 | Docker、Docker Compose、Nginx | 容器化、服务编排、静态站点 + 反向代理 |
+
+  
+
+## 3. 总体架构与数据流
+
+  
+
+### 3.1 请求链路（开发/生产一致的关键）
+
+  
+
+核心约定：**前端统一请求 `/api/...`，代理层负责转发与（必要时）去掉 `/api` 前缀，后端路由尽量保持不带 `/api`。**
+
+  
+
+```text
+
+浏览器
+
+  │  访问静态资源 / 发起 /api 请求
+
+  ▼
+
+Nginx（生产）或 Vite devServer（开发）
+
+  │  /api/* 反代到后端（可 rewrite 去掉 /api）
+
+  ▼
+
+Express 后端（mysql2 访问 MySQL）
+
+  ▼
+
+MySQL
+
+```
+
+  
+
+### 3.2 登录态与鉴权链路
+
+  
+
+- 登录/注册：后端生成 `token` 并写入 `users.token`；前端持久化到 localStorage（本项目 key 为 `token_sicau`）。
+
+- 发起请求：Axios 请求拦截器从 localStorage 读取 token，统一加 `Authorization: Bearer <token>`。
+
+- 后端鉴权：从 `Authorization` 解析 token，查库得到 userId（`getUserIdFromToken`），再执行业务 SQL。
+
+  
+
+## 4. 代码结构与模块分工
 
   
 
 - `frontend/`
 
-  - `src/router/`：路由表与全局守卫（鉴权控制）
+  - `src/router/`：路由表 + 全局守卫（`meta.requiresAuth`）
 
-  - `src/stores/`：Pinia 状态（token、用户信息、购物车等）
+  - `src/stores/`：Pinia（token、用户信息、购物车等）
 
-  - `src/utils/http.js`：Axios 实例 + 拦截器（统一挂载 `Authorization: Bearer <token>`）
+  - `src/utils/http.js`：Axios 实例（baseURL、token 注入、错误拦截）
 
-  - `src/apis/`：按业务域拆 API（如收藏、评论、订单…）
+  - `src/apis/`：按业务域拆分 API 调用封装（收藏/评论/订单等）
 
 - `backend/`
 
-  - `server.js`：Express 入口、路由与 MySQL 连接池
+  - `server.js`：Express 入口、路由与 MySQL 连接池（学习阶段集中在一个文件）
 
 - `db/init.sql`
 
-  - 建库、建用户、建表、初始化分类与商品数据
+  - 建库、建用户、建表、初始化分类/商品等种子数据
 
   
 
-核心体会：前端 **API / Store / View** 三层拆分能明显降低耦合；后端用 **路由分组 + 数据访问层（DAO/Service）** 会更易维护（本项目后端集中在 `server.js`，适合学习阶段，但上线建议拆分）。
+我学到的拆分原则：前端保持 **API（请求）/ Store（状态）/ View（页面）** 三层；后端上线更建议拆成 `routes/ + services/ + db/`（避免 `server.js` 过长、难测、难复用）。
 
   
 
-## 3. 数据库设计要点（从 init.sql 复盘）
+## 5. 数据库设计要点
 
   
 
-主要表（均为 `utf8mb4`）：
+主要表（统一 `utf8mb4`）：
 
   
 
@@ -62,11 +155,11 @@
 
 - `favorites`：收藏（`(user_id, product_id)` 唯一约束）
 
-- `cart`：购物车（`(user_id, product_id)` 唯一约束，含 `quantity/selected`）
+- `cart`：购物车（`(user_id, product_id)` 唯一约束；含 `quantity/selected`）
 
 - `rental_orders`：租赁订单（含 `status` 枚举、日期区间、金额字段）
 
-- `comments`：评论（含可选星级）
+- `comments`：评论（可选星级）
 
   
 
@@ -74,61 +167,89 @@
 
   
 
-- 字符集统一用 `utf8mb4`，避免 emoji/中文存储问题。
+- 字符集统一用 `utf8mb4`，避免中文/emoji 存储异常。
 
-- 需要“一个用户同一商品只能有一条记录”的地方，用 **唯一索引** 比业务代码更可靠（如收藏、购物车）。
+- “同一用户同一商品只允许一条记录”的需求优先用 **唯一索引** 落库，减少并发下的逻辑漏洞（收藏、购物车）。
 
-- `goods.id` 是 `INT`，而部分业务表里 `product_id` 是 `VARCHAR`；这会导致对齐与 JOIN 更麻烦，后续应统一类型（学习阶段先记录问题）。
-
-  
-
-## 4. 后端接口与鉴权（从 server.js 复盘）
+- 当前 `goods.id` 是 `INT`，而部分业务表里的 `product_id` 是 `VARCHAR`：学习阶段先记录风险，后续应统一类型，降低 JOIN/对齐成本。
 
   
 
-### 4.1 鉴权方式
+## 6. 后端设计（鉴权与接口）
 
   
 
-- 登录/注册成功后生成 `token`，写入 `users.token`
-
-- 前端请求带 `Authorization: Bearer <token>`
-
-- 后端通过 token 查用户 id（`getUserIdFromToken`）实现鉴权
+### 6.1 鉴权方式
 
   
 
-学习点：使用 `pool.execute(sql, params)` 的 **预编译参数**，避免 SQL 注入（代码里也保留了“危险拼接”示例作为对比）。
+- token 生成：登录/注册成功后生成并写入 `users.token`。
+
+- token 传递：客户端请求头 `Authorization: Bearer <token>`。
+
+- token 校验：后端解析 token 后查库得到 userId，再执行后续业务逻辑。
 
   
 
-### 4.2 主要接口（按功能归类）
+安全实现要点：主要 SQL 使用 `pool.execute(sql, params)` 参数化，避免 SQL 注入（代码中也保留了“危险拼接”的对照示例）。
 
   
 
-（路径来自 `backend/server.js`）
+### 6.2 接口清单（按业务域）
 
   
 
-- 登录/注册：`POST /login`
-
-- 用户信息：`GET /profile`
-
-- 收藏：`GET /favorites`、`POST /favorites`、`DELETE /favorites/:id`
-
-- 购物车：`GET /cart`、`POST /cart`、`PUT /cart/select-all`、`PUT /cart/:productId`、`DELETE /cart/batch`、`DELETE /cart/:productId`
-
-- 租赁：`GET /rentals`、`POST /rentals`、`PUT /rentals/:orderId/cancel`、`DELETE /rentals/:orderId`
-
-- 评论：`GET /products/:productId/comments`、`POST /products/:productId/comments`、`DELETE /comments/:commentId`
+（以 `backend/server.js` 为准）
 
   
 
-## 5. 前端路由与请求链路（我最重要的收获）
+| 业务域 | 方法 | 路径 | 说明 |
+
+| --- | --- | --- | --- |
+
+| 登录 | POST | `/login` | 登录/注册合并入口，返回 token + userInfo |
+
+| 用户 | GET | `/profile` | 获取当前用户资料 |
+
+| 收藏 | GET | `/favorites` | 获取收藏列表 |
+
+| 收藏 | POST | `/favorites` | 添加收藏 |
+
+| 收藏 | DELETE | `/favorites/:id` | 取消收藏 |
+
+| 购物车 | GET | `/cart` | 获取购物车 |
+
+| 购物车 | POST | `/cart` | 添加商品或累计数量 |
+
+| 购物车 | PUT | `/cart/select-all` | 全选/全不选 |
+
+| 购物车 | PUT | `/cart/:productId` | 修改数量/选中状态 |
+
+| 购物车 | DELETE | `/cart/batch` | 批量删除 |
+
+| 购物车 | DELETE | `/cart/:productId` | 删除单项 |
+
+| 租赁 | GET | `/rentals` | 获取租赁订单 |
+
+| 租赁 | POST | `/rentals` | 创建租赁订单 |
+
+| 租赁 | PUT | `/rentals/:orderId/cancel` | 取消订单 |
+
+| 租赁 | DELETE | `/rentals/:orderId` | 删除订单 |
+
+| 评论 | GET | `/products/:productId/comments` | 获取商品评论 |
+
+| 评论 | POST | `/products/:productId/comments` | 发表评论 |
+
+| 评论 | DELETE | `/comments/:commentId` | 删除评论 |
 
   
 
-### 5.1 路由守卫（登录态控制）
+## 7. 前端设计（路由、状态、请求）
+
+  
+
+### 7.1 路由守卫（登录态控制）
 
   
 
@@ -136,68 +257,186 @@
 
   
 
-### 5.2 Axios 拦截器（统一加 token）
+### 7.2 状态管理（Pinia）
 
   
 
-- `frontend/src/utils/http.js`：每次请求优先从 `localStorage` 读 `token_sicau`，再设置 `Authorization` 头。
+- token 与用户信息落在 store，并持久化到 localStorage。
 
-- 响应拦截器对 401 预留了统一处理入口（清 token、跳转登录等）。
-
-  
-
-### 5.3 /api 前缀的处理（开发与生产一致）
+- key 统一（如 `token_sicau`）非常重要：守卫、拦截器、store 三者必须一致，否则会出现“登录后刷新丢状态”的问题。
 
   
 
-- 开发（Vite）：`frontend/vite.config.js` 用代理把 `/api/*` 转发到 `http://localhost:5200`，并 rewrite 去掉 `/api` 前缀。
-
-- 生产（Nginx）：`frontend/nginx.conf` 将 `/api/` 反代到 `http://backend:5200/`（同样会去掉 `/api` 前缀）。
+### 7.3 Axios 统一封装（请求拦截与错误处理）
 
   
 
-结论：**前端统一请求 `/api/...`，后端路由建议统一为不带 `/api` 前缀**（由代理负责“去前缀”），这样开发/生产的路径行为一致。
+- `frontend/src/utils/http.js`：优先从 localStorage 读 `token_sicau`，统一注入 `Authorization`。
+
+- 响应拦截器预留 401 统一处理入口（清 token、跳转登录、提示等）。
 
   
 
-## 6. Docker / Compose（学到的工程化点）
+## 8. 容器化与部署（Docker / Compose / Nginx）
 
   
 
-- `docker-compose.yml`：三个服务一起编排，并用 `depends_on + healthcheck` 等待 db 就绪再启动后端。
-
-- `backend/Dockerfile`：两阶段构建（deps → runtime），并保留了依赖复制与调试输出，便于定位容器内依赖缺失问题。
-
-- `frontend/Dockerfile`：构建 `dist` 后用 Nginx 承载静态资源，并通过 `nginx.conf` 反代 `/api/`。
+### 8.1 Docker 的作用（为什么要容器化）
 
   
 
-## 7. 我记录下来的“踩坑/待改进”
+- 环境一致性：Node/MySQL/Nginx 版本与运行方式固定到镜像。
+
+- 隔离解耦：前端/后端/数据库依赖互不污染，故障可单独定位与重启。
+
+- 交付友好：把“怎么跑起来”固化成 `docker-compose.yml`，便于验收复现。
 
   
 
-这些点不影响学习结论，但适合后续清理完善：
+### 8.2 两种启动方式（开发 vs 验收/部署）
 
   
 
-- `docker-compose.yml` 中 `backend.volumes` 的缩进需要修正为列表缩进，否则可能导致 compose 解析失败。
-
-- `check.sh` 访问的是 `/api/health`，但后端当前未实现该路由；建议改成真实存在的健康检查接口，或在后端补一个 `/health`。
-
-- `backend/server.js` 中存在 `/api/ping` 路由：由于前端/NGINX 都会把 `/api` 去掉，访问 `/api/ping` 最终会落到后端的 `/ping`（不匹配）。建议统一成 `/ping` 或调整代理策略。
-
-- `frontend/src/apis/user.js` 文件内容混入了 store 代码，建议整理为“API 文件只放请求函数，store 只放状态与 action”。
+1）本地热更新（学习/开发更顺手）：只把 DB 放进容器，前后端在宿主机运行。
 
   
 
-## 8. 下一步可以怎么练（可选）
+```bash
+
+docker compose up -d db
 
   
 
-- 后端拆层：把 `server.js` 拆成 `routes/ + services/ + db/`，并封装统一的错误处理与返回格式。
+cd backend
 
-- 鉴权升级：把 token 改成 JWT（含过期时间与刷新机制），并增加权限/角色字段演练 RBAC。
+npm i
 
-- 数据一致性：统一 `product_id` 类型（建议与 `goods.id` 一致），并逐步补齐外键约束与索引策略。
+npm run dev
 
-- 可观测性：给 API 增加请求日志、慢查询日志、统一 request-id 便于排查。
+  
+
+cd ../frontend
+
+npm i
+
+npm run dev -- --port 5175
+
+```
+
+  
+
+2）全容器启动（更接近验收/部署）：`db + backend + frontend` 全部交给 Compose。
+
+  
+
+```bash
+
+docker compose up -d --build
+
+docker compose ps
+
+```
+
+  
+
+默认验收入口（参考 `.env.sample`）：
+
+  
+
+- 前端：`http://localhost:5173`
+
+- 后端：`http://localhost:15200`（容器内 `5200` 映射到宿主机 `15200`）
+
+- MySQL：`127.0.0.1:13306`
+
+  
+
+### 8.3 Compose 里的关键机制
+
+  
+
+- 数据库初始化：`db/init.sql` 挂载到 `/docker-entrypoint-initdb.d/`，首次启动自动建库建表与种子数据。
+
+- 数据持久化：`mysql-data` volume 保存 `/var/lib/mysql`，容器重建数据仍在。
+
+- 启动顺序：db healthcheck + backend depends_on（db healthy 后再启动后端）。
+
+- 容器网络：容器内服务通过 service name 访问（如 `DB_HOST=db`）。
+
+  
+
+### 8.4 Nginx 的作用（生产发布与同源访问）
+
+  
+
+- 静态资源服务：承载 `dist/`。
+
+- SPA 回退：`try_files ... /index.html`，避免前端路由刷新 404。
+
+- API 反代：把 `/api/` 转发到 `backend:5200`，实现前后端同源部署，降低跨域与部署复杂度。
+
+  
+
+## 9. 关键痛点与改进建议
+
+  
+
+- 数据库未就绪导致后端启动失败：Compose healthcheck + depends_on；代码侧可补连接重试与降级提示。
+
+- `/api` 前缀一致性：统一“前端永远 `/api/...`，代理层去前缀，后端不带 `/api`”；避免出现路由错位（例如后端写了 `/api/ping` 但代理已去掉 `/api`）。
+
+- 健康检查脚本对不上：`check.sh` 访问 `/api/health`，但后端未实现；应改为真实存在的接口或补一个健康检查路由。
+
+- Compose YAML 缩进风险：`backend.volumes` 缩进不规范会导致解析失败，应按列表缩进格式整理。
+
+- ID 类型不统一（`INT` vs `VARCHAR`）：统一主键/外键类型；补齐索引与外键约束。
+
+- 代码组织：后端建议拆分路由与服务层；前端 `src/apis/` 与 `src/stores/` 内容保持“职责单一”，避免文件混入不同层代码。
+
+  
+
+## 10. 导师问答速记（架构 / 痛点 / 安全）
+
+  
+
+### 10.1 架构设计
+
+  
+
+- Q：为什么拆成前端/后端/数据库三层？
+
+  - A：职责分离，便于维护、扩展、独立部署；前端聚焦交互，后端聚焦业务与数据访问，数据库聚焦持久化与约束。
+
+- Q：为什么生产要用 Nginx？
+
+  - A：静态资源分发更高效；支持 SPA 回退；可把 `/api` 反代到后端，做到同源部署、跨域成本更低。
+
+  
+
+### 10.2 关键痛点与应对（答辩用短句）
+
+  
+
+- “后端连不上库”：healthcheck + depends_on +（可选）连接重试。
+
+- “开发/生产接口路径不一致”：统一 `/api` 约定，代理层处理前缀。
+
+- “登录态不稳定”：token key 常量化；拦截器优先读 localStorage。
+
+  
+
+### 10.3 安全防范（当前实现 + 可提升点）
+
+  
+
+- 密码：使用 `bcrypt`/`bcryptjs` 哈希存储与比对，避免明文落库；避免日志打印敏感信息。
+
+- SQL 注入：使用 `pool.execute(sql, params)` 参数化；建议补输入校验与字段长度限制。
+
+- Token 风险：token 存 localStorage 容易受 XSS 影响；建议升级 JWT（过期/刷新）或 HttpOnly Cookie + SameSite，并配合 CSP 与输出转义。
+
+- CORS：当前 `origin: '*'` 便于学习但不适合生产；应限制允许来源域名。
+
+- 接口防刷：对登录等接口加限流（如 `express-rate-limit`），并加安全响应头（如 `helmet`）。
+
+- 配置与密钥：避免提交真实 `.env`；生产使用最小权限账号与安全的密钥注入方式（CI/Docker secrets）。
