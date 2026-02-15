@@ -141,14 +141,14 @@ $$
 左：对抗网络；右：扩散模型
 
 <div style="display: flex; gap: 10px; justify-content: center;">
-  <img src="_attachments/Pasted image 20260215190410.png" style="width:300px; height:300px; object-fit: cover; object-position: bottom;">
-  <img src="_attachments/Pasted image 20260215191422.png" style="width:300px; height:300px; object-fit: cover;">
+  <img src="_attachments/GAN-epoch10.png" style="width:300px; height:300px; object-fit: cover; object-position: bottom;">
+  <img src="_attachments/diffusion-epoch10.png" style="width:300px; height:300px; object-fit: cover;">
 </div>
 
 
 <div style="display: flex; gap: 10px; justify-content: center;">
-  <img src="_attachments/Pasted image 20260215191235.png" style="width:300px; height:300px; object-fit: cover; object-position: bottom;">
-  <img src="_attachments/Pasted image 20260215192553.png" style="width:300px; height:300px; object-fit: cover;">
+  <img src="_attachments/GAN-epoch100.png" style="width:300px; height:300px; object-fit: cover; object-position: bottom;">
+  <img src="_attachments/diffusion-epoch100.png" style="width:300px; height:300px; object-fit: cover;">
 </div>
 ---
 ## 5 效果对比表

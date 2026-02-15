@@ -4,11 +4,11 @@
     "type": "split",
     "children": [
       {
-        "id": "5f4cc11416bccd66",
+        "id": "d7754ac756336fda",
         "type": "tabs",
         "children": [
           {
-            "id": "c765a8a5aa603511",
+            "id": "99fa7377c18e8887",
             "type": "leaf",
             "state": {
               "type": "markdown",
@@ -206,20 +206,21 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "c765a8a5aa603511",
+  "active": "bb12b0030faec9c7",
   "lastOpenFiles": [
-    "deep learning/NLP 小任务学习文档（情感分析、翻译、生成文本）.md",
+    "_attachments/CartPole_last.png",
+    "deep learning/扩散模型vs对抗网络.md",
+    "_attachments/diffusion-epoch10.png",
+    "_attachments/diffusion-epoch100.png",
+    "_attachments/GAN-epoch100.png",
+    "_attachments/GAN-epoch10.png",
     "deep learning/强化学习小任务学习文档（CartPole、MountainCar、 Pendulum）.md",
+    "deep learning/NLP 小任务学习文档（情感分析、翻译、生成文本）.md",
     "deep learning/LLM 项目学习笔记：Qwen1.5-1.8B-Chat 的 4bit + LoRA 监督微调（SFT）.md",
     "网络安全入门/爬虫.md",
     "deep learning/DLV-CD变化检测项目.md",
-    "deep learning/扩散模型vs对抗网络.md",
     "死农专衣物交易平台/死农专衣物交易平台学习总结（Vue 3 + Express + MySQL）.md",
     "网络安全入门",
-    "_attachments/Pasted image 20260215192553.png",
-    "_attachments/Pasted image 20260215191235.png",
-    "_attachments/Pasted image 20260215191422.png",
-    "_attachments/Pasted image 20260215190410.png",
     "obsidian入门/基本命令.md",
     "obsidian入门/markdown语法.md",
     "obsidian入门/Git 插件.md",
