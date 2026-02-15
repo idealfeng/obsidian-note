@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "deep learning/扩散模型vs对抗网络.md",
+                "file": "死农专衣物交易平台/readme.md.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "扩散模型vs对抗网络"
+              "title": "readme.md"
             }
           }
         ]
@@ -164,8 +164,19 @@
               "icon": "lucide-list",
               "title": "欢迎 的大纲"
             }
+          },
+          {
+            "id": "b80efd1ba46e57df",
+            "type": "leaf",
+            "state": {
+              "type": "git-view",
+              "state": {},
+              "icon": "git-pull-request",
+              "title": "Source Control"
+            }
           }
-        ]
+        ],
+        "currentTab": 5
       }
     ],
     "direction": "horizontal",
@@ -180,14 +191,20 @@
       "daily-notes:打开/创建今天的日记": false,
       "templates:插入模板": false,
       "command-palette:打开命令面板": false,
-      "bases:新建数据库": false
+      "bases:新建数据库": false,
+      "obsidian-git:Open Git source control": false
     }
   },
   "active": "c177eb656eb329a6",
   "lastOpenFiles": [
-    "markdown语法/markdown语法.md",
     "deep learning/扩散模型vs对抗网络.md",
-    "markdown语法",
+    "死农专衣物交易平台/readme.md.md",
+    "死农专衣物交易平台",
+    "obsidian入门/未命名",
+    "obsidian入门/Git 插件.md",
+    "obsidian入门/基本命令.md",
+    "obsidian入门/markdown语法.md",
+    "obsidian入门",
     "deep learning",
     "欢迎.md",
     "创建链接.md"
