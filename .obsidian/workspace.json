@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "b8af7d32358e952e",
+        "id": "352639febf9980ad",
         "type": "tabs",
         "children": [
           {
-            "id": "1e6499f9539a6bea",
+            "id": "f68ff3115a06927f",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "deep learning/强化学习补充.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "强化学习补充"
+              "title": "新标签页"
             }
           }
         ]
@@ -206,10 +202,10 @@
       "table-editor-obsidian:Advanced Tables Toolbar": false
     }
   },
-  "active": "1e6499f9539a6bea",
+  "active": "f68ff3115a06927f",
   "lastOpenFiles": [
-    "deep learning/强化学习小任务学习文档（CartPole、MountainCar、 Pendulum）.md",
     "deep learning/强化学习补充.md",
+    "deep learning/强化学习小任务学习文档（CartPole、MountainCar、 Pendulum）.md",
     "deep learning/扩散模型vs对抗网络.md",
     "_attachments/pendulum_last.gif",
     "_attachments/pendulum_play_ep001.gif",
