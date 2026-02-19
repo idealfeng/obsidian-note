@@ -11,10 +11,14 @@
             "id": "f68ff3115a06927f",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "deep learning/强化学习小任务学习文档（CartPole、MountainCar、 Pendulum）.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "新标签页"
+              "title": "强化学习小任务学习文档（CartPole、MountainCar、 Pendulum）"
             }
           }
         ]
