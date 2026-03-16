@@ -13,12 +13,12 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "obsidian入门/markdown语法.md",
+                "file": "deep learning/DLV-CD变化检测项目.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "markdown语法"
+              "title": "DLV-CD变化检测项目"
             }
           }
         ]
@@ -208,19 +208,20 @@
   },
   "active": "f68ff3115a06927f",
   "lastOpenFiles": [
-    "obsidian入门/基本命令.md",
-    "obsidian入门/markdown语法.md",
-    "deep learning/NLP 小任务学习文档（情感分析、翻译、生成文本）.md",
-    "deep learning/强化学习小任务学习文档（CartPole、MountainCar、 Pendulum）.md",
     "deep learning/强化学习补充.md",
+    "deep learning/强化学习小任务学习文档（CartPole、MountainCar、 Pendulum）.md",
+    "deep learning/DLV-CD变化检测项目.md",
+    "deep learning/NLP 小任务学习文档（情感分析、翻译、生成文本）.md",
     "deep learning/扩散模型vs对抗网络.md",
+    "deep learning/LLM 项目学习笔记：Qwen1.5-1.8B-Chat 的 4bit + LoRA 监督微调（SFT）.md",
+    "obsidian入门/Git 插件.md",
+    "obsidian入门/markdown语法.md",
+    "obsidian入门/基本命令.md",
     "_attachments/pendulum_last.gif",
     "_attachments/pendulum_play_ep001.gif",
     "_attachments/cartpole_first.gif",
     "_attachments/cartpole_last.gif",
     "_attachments/cartpole_play_ep002.gif",
-    "deep learning/DLV-CD变化检测项目.md",
-    "deep learning/LLM 项目学习笔记：Qwen1.5-1.8B-Chat 的 4bit + LoRA 监督微调（SFT）.md",
     "_attachments/mountaincar_last.gif",
     "_attachments/mountaincar_play_ep003.gif",
     "_attachments/pendulum_play_ep003.gif",
@@ -230,7 +231,6 @@
     "网络安全入门/爬虫.md",
     "死农专衣物交易平台/死农专衣物交易平台学习总结（Vue 3 + Express + MySQL）.md",
     "网络安全入门",
-    "obsidian入门/Git 插件.md",
     "_attachments",
     "死农专衣物交易平台",
     "obsidian入门/未命名",
